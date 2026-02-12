@@ -1,14 +1,16 @@
-// --- 1. Audio Interaction Handler ---
+// --- 1. Audio Logic (Mobile-Ready) ---
 const music = document.getElementById('bg-music');
 
-const startMusic = () => {
-    music.play().catch(e => console.log("Audio waiting for interaction..."));
-    window.removeEventListener('click', startMusic);
-    window.removeEventListener('touchstart', startMusic);
+const triggerMusic = () => {
+    music.play().then(() => {
+        // Once playing, we can remove these listeners
+        window.removeEventListener('click', triggerMusic);
+        window.removeEventListener('touchstart', triggerMusic);
+    }).catch(e => console.log("Waiting for user interaction..."));
 };
 
-window.addEventListener('click', startMusic);
-window.addEventListener('touchstart', startMusic);
+window.addEventListener('click', triggerMusic);
+window.addEventListener('touchstart', triggerMusic);
 
 // --- 2. Particle System ---
 const pCanvas = document.getElementById('particle-canvas');
@@ -39,7 +41,6 @@ class P {
         this.pulse = Math.random() * Math.PI * 2;
         this.heartColor = ['#ff6b81','#ff8fa3','#ff758f'][Math.floor(Math.random()*3)];
     }
-
     update() {
         this.y -= this.speed;
         this.wave += this.waveSpeed;
@@ -48,7 +49,6 @@ class P {
         this.pulse += 0.02;
         if (this.y < -40) this.reset(this.type);
     }
-
     draw() {
         pCtx.save();
         pCtx.globalAlpha = this.opacity;
@@ -83,7 +83,6 @@ class P {
 }
 
 for (let i = 0; i < 60; i++) particles.push(new P());
-
 function loop() {
     pCtx.clearRect(0, 0, pCanvas.width, pCanvas.height);
     particles.forEach(p => { p.update(); p.draw(); });
@@ -95,6 +94,7 @@ loop();
 const noBtn = document.getElementById('no-btn');
 const handleNo = (e) => {
     e.preventDefault();
+    triggerMusic(); // Try music even on "No"
     noBtn.style.animation = 'none';
     noBtn.offsetHeight; 
     noBtn.style.animation = 'shake 0.5s ease-in-out';
@@ -108,7 +108,10 @@ const handleNo = (e) => {
 noBtn.addEventListener('touchstart', handleNo, {passive: false});
 noBtn.addEventListener('click', handleNo);
 
-document.getElementById('yes-btn').onclick = () => nextStage(2);
+document.getElementById('yes-btn').onclick = () => {
+    triggerMusic();
+    nextStage(2);
+};
 
 function nextStage(n) {
     document.querySelectorAll('.stage').forEach(s => s.classList.remove('active'));
@@ -116,87 +119,54 @@ function nextStage(n) {
     if(n===2) formHeartShowcase();
 }
 
-// --- 4. Stage 2: Gallery ---
-const imgSources = [
-    "img1.jpg", 
-    "img2.jpg", 
-    "img3.jpg", 
-    "img4.jpg", 
-    "img5.jpg",
-    "img6.jpg",
-    "img7.jpg",
-    "img8.jpg", 
-    "img9.jpg",
-    "img10.jpg"
-];
+// --- 4. Gallery ---
+const imgSources = ["img1.jpg", "img2.jpg", "img3.jpg", "img4.jpg", "img5.jpg", "img6.jpg", "img7.jpg", "img8.jpg", "img9.jpg", "img10.jpg"];
 const captions = ["Your Presence 🤍", "Your Smile 😊", "Every Moment 🫶", "My Love 🫴", "Our World 🌎", "Our Adventures 💗", "Our Dream 🌝", "Our Inside Jokes 🙈", "Simply us 🦢", "Your Eyes 👀"];
-
-const heartPattern = [
-    {x: -55, y: -90}, {x: 55, y: -90},
-    {x: -95, y: -35}, {x: -32, y: -35}, {x: 32, y: -35}, {x: 95, y: -35},
-    {x: -65, y: 30}, {x: 0, y: 30}, {x: 65, y: 30}, {x: 0, y: 95}
-];
+const heartPattern = [{x: -55, y: -90}, {x: 55, y: -90}, {x: -95, y: -35}, {x: -32, y: -35}, {x: 32, y: -35}, {x: 95, y: -35}, {x: -65, y: 30}, {x: 0, y: 30}, {x: 65, y: 30}, {x: 0, y: 95}];
 
 async function formHeartShowcase() {
     const gallery = document.getElementById('heart-gallery');
     gallery.innerHTML = '';
-    
     for (let i = 0; i < imgSources.length; i++) {
         const div = document.createElement('div');
         div.className = 'mini-polaroid';
         div.innerHTML = `<img src="${imgSources[i]}"><p>${captions[i]}</p>`;
-        div.style.transform = "translate(0, 0) scale(0)";
         gallery.appendChild(div);
-
         await new Promise(r => setTimeout(r, 100));
-        div.style.transform = `translate(0, 0) scale(2.8) rotate(${(Math.random()-0.5)*10}deg)`;
+        div.style.transform = `scale(2.8) rotate(${(Math.random()-0.5)*10}deg)`;
         div.style.zIndex = "1000";
-
-        await new Promise(r => setTimeout(r, 1300));
-
+        await new Promise(r => setTimeout(r, 1000));
         const pos = heartPattern[i];
-        const randomRot = (Math.random() - 0.5) * 30;
-        const finalTrans = `translate(${pos.x}px, ${pos.y}px) scale(1) rotate(${randomRot}deg)`;
-        
+        const finalTrans = `translate(${pos.x}px, ${pos.y}px) scale(1) rotate(${(Math.random()-0.5)*30}deg)`;
         div.style.zIndex = "5";
         div.style.transform = finalTrans;
         div.dataset.origTrans = finalTrans;
-
         div.onclick = (e) => {
             e.stopPropagation();
             if(div.classList.contains('zoomed')) {
                 div.classList.remove('zoomed');
                 div.style.transform = div.dataset.origTrans;
             } else {
-                closeAllPhotos();
+                document.querySelectorAll('.mini-polaroid.zoomed').forEach(p => {
+                    p.classList.remove('zoomed'); p.style.transform = p.dataset.origTrans;
+                });
                 div.classList.add('zoomed');
             }
         };
     }
-    setTimeout(() => {
-        document.getElementById('swipe-wrap').classList.add('show');
-        initSlider();
-    }, 600);
-}
-
-function closeAllPhotos() {
-    document.querySelectorAll('.mini-polaroid.zoomed').forEach(p => {
-        p.classList.remove('zoomed');
-        p.style.transform = p.dataset.origTrans;
-    });
+    setTimeout(() => { document.getElementById('swipe-wrap').classList.add('show'); initSlider(); }, 600);
 }
 
 function initSlider() {
     const knob = document.getElementById('heart-knob'), fill = document.getElementById('fill'), track = document.getElementById('track');
     let dragging = false;
-    const startDragging = (e) => { dragging = true; if(e.type === 'touchstart') e.preventDefault(); };
+    const startDragging = (e) => { dragging = true; triggerMusic(); };
     const stopDragging = () => dragging = false;
     const onMove = (e) => {
         if(!dragging) return;
         const rect = track.getBoundingClientRect();
         const clientX = e.touches ? e.touches[0].clientX : e.clientX;
-        const x = clientX - rect.left - 27;
-        let p = Math.max(0, Math.min(x / (rect.width - 55), 1));
+        let p = Math.max(0, Math.min((clientX - rect.left - 27) / (rect.width - 55), 1));
         knob.style.left = (p * (rect.width - 55)) + 'px';
         fill.style.width = (p * 100) + '%';
         if(p > 0.98) { dragging = false; nextStage(3); }
@@ -209,7 +179,7 @@ function initSlider() {
     window.addEventListener('touchend', stopDragging);
 }
 
-// --- 5. Stage 3 Scratch Logic ---
+// --- 5. Stage 3 ---
 const envelope = document.getElementById('envelope');
 envelope.onclick = () => { envelope.classList.add('open'); setTimeout(initScratch, 500); };
 
@@ -219,17 +189,13 @@ function initScratch() {
     const ctx = canvas.getContext('2d');
     canvas.width = canvas.offsetWidth;
     canvas.height = canvas.offsetHeight;
-    const grad = ctx.createLinearGradient(0,0,canvas.width,canvas.height);
-    grad.addColorStop(0,'#e2e2e2'); grad.addColorStop(0.5,'#ffb3c1'); grad.addColorStop(1,'#d1d1d1');
-    ctx.fillStyle = grad; ctx.fillRect(0,0,canvas.width,canvas.height);
-    ctx.fillStyle='#ff4d6d'; ctx.font='bold 16px "Shantell Sans"'; ctx.textAlign='center';
-    ctx.fillText('SCRATCH HERE', canvas.width/2, canvas.height/2+5);
+    ctx.fillStyle = '#ffb3c1'; ctx.fillRect(0,0,canvas.width,canvas.height);
+    ctx.fillStyle='#ff4d6d'; ctx.font='bold 16px Arial'; ctx.textAlign='center';
+    ctx.fillText('SCRATCH HERE', canvas.width/2, canvas.height/2);
     const scratch = (clientX, clientY) => {
         const rect = canvas.getBoundingClientRect();
-        const x = clientX - rect.left;
-        const y = clientY - rect.top;
         ctx.globalCompositeOperation = 'destination-out';
-        ctx.beginPath(); ctx.arc(x, y, 25, 0, Math.PI*2); ctx.fill();
+        ctx.beginPath(); ctx.arc(clientX - rect.left, clientY - rect.top, 25, 0, Math.PI*2); ctx.fill();
     };
     canvas.addEventListener('touchmove', (e) => { e.preventDefault(); scratch(e.touches[0].clientX, e.touches[0].clientY); });
     canvas.addEventListener('mousemove', (e) => { if(e.buttons === 1) scratch(e.clientX, e.clientY); });
