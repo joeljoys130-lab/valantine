@@ -118,16 +118,16 @@ function nextStage(n) {
 
 // --- 4. Stage 2: Gallery ---
 const imgSources = [
-    "https://th.bing.com/th/id/OIP.ia1P2RB_iV1HYr1LOdK64wHaLj?w=200&h=312&c=7&r=0&o=7&dpr=1.3&pid=1.7&rm=3", 
-    "https://i.pinimg.com/originals/84/a2/e1/84a2e147cb9e1e72bcc8a8adf286bbe7.jpg", 
-    "https://www.hdwallpapers.in/download/couple_standing_in_blur_green_leaves_background_hd_couple-1920x1080.jpg", 
-    "https://i.pinimg.com/originals/27/a3/f3/27a3f316fadb1b3e87c97a7772190116.jpg", 
-    "https://wallpapercave.com/wp/wp5010109.jpg",
-    "https://wallpapercave.com/wp/wp11015400.jpg",
-    "https://static.vecteezy.com/system/resources/previews/001/421/389/large_2x/beautiful-wedding-couple-hugging-in-the-park-with-sun-halos-free-photo.jpg",
-    "https://images.pexels.com/photos/16122198/pexels-photo-16122198/free-photo-of-couple-hugging-in-nature-on-sunset.jpeg?auto=compress&cs=tinysrgb&dpr=1&w=500", 
-    "https://th.bing.com/th/id/R.c9243fcd81772e5f3eeaa266024c2e36?rik=YE%2fDATXDyvRUXA&riu=http%3a%2f%2fwww.brandedgirls.com%2fwp-content%2fuploads%2f2015%2f12%2fmarried-couple-hugging5.jpg&ehk=L4JDUNOzUitSLsyV5ziXQlQUgdYb%2fm%2bka78zPPFZCz8%3d&risl=&pid=ImgRaw&r=0",
-    "https://wallpaperbat.com/img/155864-couple-standing-in-the-seashore-hugging-each-other-during-sunset.jpg"
+    "img1.jpg", 
+    "img2.jpg", 
+    "img3.jpg", 
+    "img4.jpg", 
+    "img5.jpg",
+    "img6.jpg",
+    "img7.jpg",
+    "img8.jpg", 
+    "img9.jpg",
+    "img10.jpg"
 ];
 const captions = ["Your Presence 🤍", "Your Smile 😊", "Every Moment 🫶", "My Love 🫴", "Our World 🌎", "Our Adventures 💗", "Our Dream 🌝", "Our Inside Jokes 🙈", "Simply us 🦢", "Your Eyes 👀"];
 
